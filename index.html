@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myanmar Electricity Schedule Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .group-selection {
+            margin-bottom: 30px;
+        }
+
+        .group-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .group-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .group-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .group-btn.active {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            transform: scale(1.05);
+        }
+
+        .status-display {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .status-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .status-on {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .status-off {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .current-time {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .schedule-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(103, 126, 234, 0.1);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .status-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .group-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .group-btn {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Myanmar Electricity Schedule</h1>
+        <p class="subtitle">May 2025 Load Shedding Schedule</p>
+        
+        <div class="group-selection">
+            <h3>Select Your Group:</h3>
+            <div class="group-buttons">
+                <button class="group-btn" data-group="A">A</button>
+                <button class="group-btn" data-group="B">B</button>
+                <button class="group-btn" data-group="C">C</button>
+            </div>
+        </div>
+
+        <div id="statusDisplay" class="status-display">
+            <div class="loading"></div>
+            Checking electricity status...
+        </div>
+
+        <div class="current-time">
+            <strong>Current Time:</strong> <span id="currentTime"></span>
+        </div>
+
+        <div class="schedule-info">
+            <strong>Schedule Times:</strong><br>
+            5-9 AM | 9-1 PM | 1-5 PM | 5-9 PM | 9-1 AM | 1-5 AM
+        </div>
+    </div>
+
+    <script>
+        // Schedule data for May 2025
+        const scheduleData = {
+            1: { A: 'C', B: 'A', C: 'B' },
+            2: { A: 'A', B: 'B', C: 'C' },
+            3: { A: 'B', B: 'C', C: 'A' },
+            4: { A: 'C', B: 'A', C: 'B' },
+            5: { A: 'A', B: 'B', C: 'C' },
+            6: { A: 'B', B: 'C', C: 'A' },
+            7: { A: 'C', B: 'A', C: 'B' },
+            8: { A: 'A', B: 'B', C: 'C' },
+            9: { A: 'B', B: 'C', C: 'A' },
+            10: { A: 'C', B: 'A', C: 'B' },
+            11: { A: 'A', B: 'B', C: 'C' },
+            12: { A: 'B', B: 'C', C: 'A' },
+            13: { A: 'C', B: 'A', C: 'B' },
+            14: { A: 'A', B: 'B', C: 'C' },
+            15: { A: 'B', B: 'C', C: 'A' },
+            16: { A: 'C', B: 'A', C: 'B' },
+            17: { A: 'A', B: 'B', C: 'C' },
+            18: { A: 'B', B: 'C', C: 'A' },
+            19: { A: 'C', B: 'A', C: 'B' },
+            20: { A: 'A', B: 'B', C: 'C' },
+            21: { A: 'B', B: 'C', C: 'A' },
+            22: { A: 'C', B: 'A', C: 'B' },
+            23: { A: 'A', B: 'B', C: 'C' },
+            24: { A: 'B', B: 'C', C: 'A' },
+            25: { A: 'C', B: 'A', C: 'B' },
+            26: { A: 'A', B: 'B', C: 'C' },
+            27: { A: 'B', B: 'C', C: 'A' },
+            28: { A: 'C', B: 'A', C: 'B' },
+            29: { A: 'A', B: 'B', C: 'C' },
+            30: { A: 'B', B: 'C', C: 'A' },
+            31: { A: 'C', B: 'A', C: 'B' }
+        };
+
+        // Time slots mapping
+        const timeSlots = {
+            'A': [5, 9],   // 5-9 (AM and PM)
+            'B': [9, 13],  // 9-1 (AM and PM)
+            'C': [13, 17]  // 1-5 (PM and AM next day)
+        };
+
+        let selectedGroup = null;
+        let updateInterval = null;
+
+        // DOM elements
+        const groupButtons = document.querySelectorAll('.group-btn');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const currentTimeElement = document.getElementById('currentTime');
+
+        // Event listeners
+        groupButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                selectedGroup = button.dataset.group;
+                updateActiveButton(button);
+                checkElectricityStatus();
+                startAutoUpdate();
+            });
+        });
+
+        function updateActiveButton(activeButton) {
+            groupButtons.forEach(btn => btn.classList.remove('active'));
+            activeButton.classList.add('active');
+        }
+
+        function getCurrentTime() {
+            // Get Myanmar time (UTC+6:30)
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const myanmarTime = new Date(utc + (6.5 * 3600000)); // UTC+6:30
+            
+            return {
+                date: myanmarTime.getDate(),
+                month: myanmarTime.getMonth() + 1,
+                hour: myanmarTime.getHours(),
+                minute: myanmarTime.getMinutes(),
+                fullTime: myanmarTime.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZone: 'UTC'
+                }) + ' (Myanmar Time)'
+            };
+        }
+
+        function getTimeSlot(hour) {
+            if (hour >= 5 && hour < 9) return 0;      // 5-9 AM (A)
+            if (hour >= 9 && hour < 13) return 1;     // 9-1 PM (B)
+            if (hour >= 13 && hour < 17) return 2;    // 1-5 PM (C)
+            if (hour >= 17 && hour < 21) return 3;    // 5-9 PM (A)
+            if (hour >= 21 || hour < 1) return 4;     // 9-1 AM (B)
+            if (hour >= 1 && hour < 5) return 5;      // 1-5 AM (C)
+        }
+
+        function checkElectricityStatus() {
+            if (!selectedGroup) return;
+
+            const currentTime = getCurrentTime();
+            
+            // Check if current month is May (month 5)
+            if (currentTime.month !== 5) {
+                displayStatus(false, "Schedule is only available for May 2025", currentTime.fullTime);
+                return;
+            }
+
+            // Get current date and time slot
+            const currentDate = currentTime.date;
+            const currentTimeSlot = getTimeSlot(currentTime.hour);
+            
+            // Get the pattern for this date (which group is in which position)
+            const datePattern = scheduleData[currentDate];
+            
+            // Time slot groups mapping: 0=A, 1=B, 2=C, 3=A, 4=B, 5=C
+            const timeSlotGroups = ['A', 'B', 'C', 'A', 'B', 'C'];
+            const currentSlotGroup = timeSlotGroups[currentTimeSlot];
+            
+            // Find which group should be OFF in the current time slot
+            // The schedule shows which group (A, B, or C) appears in each time slot
+            // The group that appears in that time slot is the one that's OFF
+            let groupThatShouldBeOff = null;
+            
+            // Check which group is scheduled to be off in the current time slot
+            for (let group in datePattern) {
+                if (datePattern[group] === currentSlotGroup) {
+                    groupThatShouldBeOff = group;
+                    break;
+                }
+            }
+            
+            // If the selected group is the one that should be off, electricity is OFF
+            const isElectricityOff = (selectedGroup === groupThatShouldBeOff);
+            
+            displayStatus(!isElectricityOff, 
+                isElectricityOff ? `Electricity is currently OFF (Group ${selectedGroup} scheduled off)` : `Electricity is currently ON (Group ${groupThatShouldBeOff} is off)`, 
+                currentTime.fullTime);
+        }
+
+        function displayStatus(isOn, message, time) {
+            currentTimeElement.textContent = time;
+            
+            statusDisplay.className = 'status-display show ' + (isOn ? 'status-on' : 'status-off');
+            statusDisplay.innerHTML = `
+                <span class="status-icon">${isOn ? '⚡' : '🔌'}</span>
+                <div>${message}</div>
+            `;
+        }
+
+        function startAutoUpdate() {
+            if (updateInterval) clearInterval(updateInterval);
+            
+            updateInterval = setInterval(() => {
+                checkElectricityStatus();
+            }, 1000); // Update every second
+        }
+
+        // Initial time display
+        function updateTimeDisplay() {
+            const currentTime = getCurrentTime();
+            currentTimeElement.textContent = currentTime.fullTime;
+        }
+
+        // Update time every second
+        setInterval(updateTimeDisplay, 1000);
+        updateTimeDisplay();
+
+        // Initial status
+        statusDisplay.innerHTML = '<div>Please select your group (A, B, or C) to check electricity status</div>';
+    </script>
+</body>
+</html>
