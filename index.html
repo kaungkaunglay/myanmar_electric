@@ -84,11 +84,13 @@
             margin-top: 30px;
             padding: 25px;
             border-radius: 15px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.5s ease;
+            white-space: pre-line;
+            line-height: 1.6;
         }
 
         .status-display.show {
@@ -191,39 +193,40 @@
     </div>
 
     <script>
-        // Schedule data for May 2025
+        // Schedule data for May 2025 - each array represents the 6 time slots for each date
+        // [5-9AM, 9-1PM, 1-5PM, 5-9PM, 9-1AM, 1-5AM]
         const scheduleData = {
-            1: { A: 'C', B: 'A', C: 'B' },
-            2: { A: 'A', B: 'B', C: 'C' },
-            3: { A: 'B', B: 'C', C: 'A' },
-            4: { A: 'C', B: 'A', C: 'B' },
-            5: { A: 'A', B: 'B', C: 'C' },
-            6: { A: 'B', B: 'C', C: 'A' },
-            7: { A: 'C', B: 'A', C: 'B' },
-            8: { A: 'A', B: 'B', C: 'C' },
-            9: { A: 'B', B: 'C', C: 'A' },
-            10: { A: 'C', B: 'A', C: 'B' },
-            11: { A: 'A', B: 'B', C: 'C' },
-            12: { A: 'B', B: 'C', C: 'A' },
-            13: { A: 'C', B: 'A', C: 'B' },
-            14: { A: 'A', B: 'B', C: 'C' },
-            15: { A: 'B', B: 'C', C: 'A' },
-            16: { A: 'C', B: 'A', C: 'B' },
-            17: { A: 'A', B: 'B', C: 'C' },
-            18: { A: 'B', B: 'C', C: 'A' },
-            19: { A: 'C', B: 'A', C: 'B' },
-            20: { A: 'A', B: 'B', C: 'C' },
-            21: { A: 'B', B: 'C', C: 'A' },
-            22: { A: 'C', B: 'A', C: 'B' },
-            23: { A: 'A', B: 'B', C: 'C' },
-            24: { A: 'B', B: 'C', C: 'A' },
-            25: { A: 'C', B: 'A', C: 'B' },
-            26: { A: 'A', B: 'B', C: 'C' },
-            27: { A: 'B', B: 'C', C: 'A' },
-            28: { A: 'C', B: 'A', C: 'B' },
-            29: { A: 'A', B: 'B', C: 'C' },
-            30: { A: 'B', B: 'C', C: 'A' },
-            31: { A: 'C', B: 'A', C: 'B' }
+            1: ['C', 'A', 'B', 'C', 'A', 'B'],
+            2: ['A', 'B', 'C', 'A', 'B', 'A'],
+            3: ['B', 'C', 'A', 'B', 'C', 'A'],
+            4: ['C', 'A', 'B', 'C', 'A', 'B'],
+            5: ['A', 'B', 'C', 'A', 'B', 'A'],
+            6: ['B', 'C', 'A', 'B', 'C', 'A'],
+            7: ['C', 'A', 'B', 'C', 'A', 'B'],
+            8: ['A', 'B', 'C', 'A', 'B', 'A'],
+            9: ['B', 'C', 'A', 'B', 'C', 'A'],
+            10: ['C', 'A', 'B', 'C', 'A', 'B'],
+            11: ['A', 'B', 'C', 'A', 'B', 'A'],
+            12: ['B', 'C', 'A', 'B', 'C', 'A'],
+            13: ['C', 'A', 'B', 'C', 'A', 'B'],
+            14: ['A', 'B', 'C', 'A', 'B', 'A'],
+            15: ['B', 'C', 'A', 'B', 'C', 'A'],
+            16: ['C', 'A', 'B', 'C', 'A', 'B'],
+            17: ['A', 'B', 'C', 'A', 'B', 'A'],
+            18: ['B', 'C', 'A', 'B', 'C', 'A'],
+            19: ['C', 'A', 'B', 'C', 'A', 'B'],
+            20: ['A', 'B', 'C', 'A', 'B', 'A'],
+            21: ['B', 'C', 'A', 'B', 'C', 'A'],
+            22: ['C', 'A', 'B', 'C', 'A', 'B'],
+            23: ['A', 'B', 'C', 'A', 'B', 'A'],
+            24: ['B', 'C', 'A', 'B', 'C', 'A'],
+            25: ['C', 'A', 'B', 'C', 'A', 'B'],
+            26: ['A', 'B', 'C', 'A', 'B', 'A'],
+            27: ['B', 'C', 'A', 'B', 'C', 'A'],
+            28: ['C', 'A', 'B', 'C', 'A', 'B'],
+            29: ['A', 'B', 'C', 'A', 'B', 'A'],
+            30: ['B', 'C', 'A', 'B', 'C', 'A'],
+            31: ['C', 'A', 'B', 'C', 'A', 'B']
         };
 
         // Time slots mapping
@@ -259,33 +262,117 @@
         function getCurrentTime() {
             // Get Myanmar time (UTC+6:30)
             const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const myanmarTime = new Date(utc + (6.5 * 3600000)); // UTC+6:30
+            
+            // Create a new date object for Myanmar time
+            const myanmarTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Yangon"}));
             
             return {
                 date: myanmarTime.getDate(),
                 month: myanmarTime.getMonth() + 1,
                 hour: myanmarTime.getHours(),
                 minute: myanmarTime.getMinutes(),
-                fullTime: myanmarTime.toLocaleString('en-US', {
+                fullTime: now.toLocaleString('en-US', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit',
-                    timeZone: 'UTC'
+                    timeZone: 'Asia/Yangon'
                 }) + ' (Myanmar Time)'
             };
         }
 
         function getTimeSlot(hour) {
-            if (hour >= 5 && hour < 9) return 0;      // 5-9 AM (A)
-            if (hour >= 9 && hour < 13) return 1;     // 9-1 PM (B)
-            if (hour >= 13 && hour < 17) return 2;    // 1-5 PM (C)
-            if (hour >= 17 && hour < 21) return 3;    // 5-9 PM (A)
-            if (hour >= 21 || hour < 1) return 4;     // 9-1 AM (B)
-            if (hour >= 1 && hour < 5) return 5;      // 1-5 AM (C)
+            if (hour >= 5 && hour < 9) return 0;      // 5-9 AM (Column 1)
+            if (hour >= 9 && hour < 13) return 1;     // 9-1 PM (Column 2)  
+            if (hour >= 13 && hour < 17) return 2;    // 1-5 PM (Column 3)
+            if (hour >= 17 && hour < 21) return 3;    // 5-9 PM (Column 4)
+            if (hour >= 21 || hour < 1) return 4;     // 9-1 AM (Column 5)
+            if (hour >= 1 && hour < 5) return 5;      // 1-5 AM (Column 6)
+        }
+
+        function findNextElectricityChange(selectedGroup, currentDate, currentHour) {
+            const timeSlotNames = ['5-9 AM', '9-1 PM', '1-5 PM', '5-9 PM', '9-1 AM', '1-5 AM'];
+            const timeSlotHours = [5, 9, 13, 17, 21, 1]; // Start hours for each slot
+            
+            // Check current electricity status
+            const currentTimeSlot = getTimeSlot(currentHour);
+            const currentDaySchedule = scheduleData[currentDate];
+            const currentGroupWithPower = currentDaySchedule[currentTimeSlot];
+            const isCurrentlyOn = (selectedGroup === currentGroupWithPower);
+            
+            // Look for next change starting from current time slot
+            let checkDate = currentDate;
+            let foundNext = false;
+            let nextChangeInfo = null;
+            
+            // Check remaining slots today
+            for (let slot = currentTimeSlot + 1; slot < 6; slot++) {
+                const groupWithPower = currentDaySchedule[slot];
+                const willBeOn = (selectedGroup === groupWithPower);
+                
+                if (willBeOn !== isCurrentlyOn) {
+                    // Found next change
+                    let nextHour = timeSlotHours[slot];
+                    let nextDay = checkDate;
+                    
+                    // Handle overnight slots (1 AM is next day)
+                    if (slot === 5) { // 1-5 AM slot
+                        nextDay = checkDate + 1;
+                        if (nextDay > 31) nextDay = 1; // Wrap to next month
+                    }
+                    
+                    nextChangeInfo = {
+                        date: nextDay,
+                        hour: nextHour,
+                        slot: slot,
+                        slotName: timeSlotNames[slot],
+                        willBeOn: willBeOn
+                    };
+                    foundNext = true;
+                    break;
+                }
+            }
+            
+            // If not found today, check tomorrow
+            if (!foundNext) {
+                let nextDate = currentDate + 1;
+                if (nextDate > 31) nextDate = 1; // Wrap to next month
+                
+                const nextDaySchedule = scheduleData[nextDate];
+                if (nextDaySchedule) {
+                    for (let slot = 0; slot < 6; slot++) {
+                        const groupWithPower = nextDaySchedule[slot];
+                        const willBeOn = (selectedGroup === groupWithPower);
+                        
+                        if (willBeOn !== isCurrentlyOn) {
+                            let nextHour = timeSlotHours[slot];
+                            let nextDay = nextDate;
+                            
+                            // Handle overnight slots
+                            if (slot === 5) {
+                                nextDay = nextDate + 1;
+                                if (nextDay > 31) nextDay = 1;
+                            }
+                            
+                            nextChangeInfo = {
+                                date: nextDay,
+                                hour: nextHour,
+                                slot: slot,
+                                slotName: timeSlotNames[slot],
+                                willBeOn: willBeOn
+                            };
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            return {
+                currentlyOn: isCurrentlyOn,
+                nextChange: nextChangeInfo
+            };
         }
 
         function checkElectricityStatus() {
@@ -301,34 +388,44 @@
 
             // Get current date and time slot
             const currentDate = currentTime.date;
-            const currentTimeSlot = getTimeSlot(currentTime.hour);
+            const currentHour = currentTime.hour;
             
-            // Get the pattern for this date (which group is in which position)
-            const datePattern = scheduleData[currentDate];
+            // Get the schedule for this date
+            const daySchedule = scheduleData[currentDate];
             
-            // Time slot groups mapping: 0=A, 1=B, 2=C, 3=A, 4=B, 5=C
-            const timeSlotGroups = ['A', 'B', 'C', 'A', 'B', 'C'];
-            const currentSlotGroup = timeSlotGroups[currentTimeSlot];
+            if (!daySchedule) {
+                displayStatus(false, "Invalid date", currentTime.fullTime);
+                return;
+            }
             
-            // Find which group should be OFF in the current time slot
-            // The schedule shows which group (A, B, or C) appears in each time slot
-            // The group that appears in that time slot is the one that's OFF
-            let groupThatShouldBeOff = null;
+            // Find current status and next change
+            const electricityInfo = findNextElectricityChange(selectedGroup, currentDate, currentHour);
             
-            // Check which group is scheduled to be off in the current time slot
-            for (let group in datePattern) {
-                if (datePattern[group] === currentSlotGroup) {
-                    groupThatShouldBeOff = group;
-                    break;
+            let statusMessage = "";
+            
+            if (electricityInfo.currentlyOn) {
+                statusMessage = "Electricity is currently ON";
+                if (electricityInfo.nextChange) {
+                    const nextChange = electricityInfo.nextChange;
+                    statusMessage += `\n\nNext OFF: ${nextChange.slotName}`;
+                    if (nextChange.date !== currentDate) {
+                        statusMessage += ` (Tomorrow)`;
+                    }
+                    statusMessage += ` at ${nextChange.hour}:00`;
+                }
+            } else {
+                statusMessage = "Electricity is currently OFF";
+                if (electricityInfo.nextChange) {
+                    const nextChange = electricityInfo.nextChange;
+                    statusMessage += `\n\nNext ON: ${nextChange.slotName}`;
+                    if (nextChange.date !== currentDate) {
+                        statusMessage += ` (Tomorrow)`;
+                    }
+                    statusMessage += ` at ${nextChange.hour}:00`;
                 }
             }
             
-            // If the selected group is the one that should be off, electricity is OFF
-            const isElectricityOff = (selectedGroup === groupThatShouldBeOff);
-            
-            displayStatus(!isElectricityOff, 
-                isElectricityOff ? `Electricity is currently OFF (Group ${selectedGroup} scheduled off)` : `Electricity is currently ON (Group ${groupThatShouldBeOff} is off)`, 
-                currentTime.fullTime);
+            displayStatus(electricityInfo.currentlyOn, statusMessage, currentTime.fullTime);
         }
 
         function displayStatus(isOn, message, time) {
@@ -351,8 +448,17 @@
 
         // Initial time display
         function updateTimeDisplay() {
-            const currentTime = getCurrentTime();
-            currentTimeElement.textContent = currentTime.fullTime;
+            const now = new Date();
+            const myanmarTimeString = now.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Asia/Yangon'
+            }) + ' (Myanmar Time)';
+            currentTimeElement.textContent = myanmarTimeString;
         }
 
         // Update time every second
